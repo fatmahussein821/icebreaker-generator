@@ -1,0 +1,836 @@
+{
+  "name": "Project Managers UAE - Icebreaker Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        704,
+        -80
+      ],
+      "id": "1d46d081-4753-4437-8c64-7bd2b57c779d",
+      "name": "Wait",
+      "webhookId": "YOUR_N8N_WEBHOOK_ID_1"
+    },
+    {
+      "parameters": {
+        "url": "https://api.apify.com/v2/actors/pipelinelabs~lead-scraper-apollo-zoominfo-lusha-ppe/runs/last/dataset/items?token=YOUR_APIFY_API_TOKEN",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        928,
+        -80
+      ],
+      "id": "e33e77ed-f4fb-44e9-bcaa-c1f7108ca122",
+      "name": "Get Data",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3bf32cfa-ca59-4427-86c8-132d01b90f73",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "5fd3a16d-f430-4da2-9178-963d3787db57",
+              "leftValue": "={{ $json.phone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c5c65189-fba0-45a1-a666-f1ecae94c0eb",
+              "leftValue": "={{ $json.companyDomain }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        1136,
+        -80
+      ],
+      "id": "fc7a773a-1bd0-4633-bbee-51d1370e4fcf",
+      "name": "Filter",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1376,
+        -80
+      ],
+      "id": "98a0c73b-4914-4c3a-8486-78c4abe4f84b",
+      "name": "Loop Over Items",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "links",
+              "cssSelector": "body"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        512,
+        176
+      ],
+      "id": "6f371513-926f-46e4-85e8-fea3e513c7d3",
+      "name": "HTML",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        384
+      ],
+      "id": "98063e0a-59bf-4691-b710-320171f4b5a5",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_GEMINI_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_GEMINI_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        160
+      ],
+      "id": "3834b945-c40e-4509-a7ae-220975d16ba4",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "links",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        160
+      ],
+      "id": "68643d93-198a-4b22-9b49-31758d2bb6d0",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        160
+      ],
+      "id": "47ba333f-88b8-41b2-afb6-52067928969e",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2096,
+        160
+      ],
+      "id": "da655bc9-1e45-4867-8081-2018b96ba6d8",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        2368,
+        352
+      ],
+      "id": "0db16201-0042-4915-8d18-d136d50833d3",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_GOOGLE_GEMINI_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_GEMINI_CREDENTIAL_NAME"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        256,
+        -80
+      ],
+      "id": "4d747483-fc24-4b1f-8420-f73dfb3b5ff1",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/actors/pipelinelabs~lead-scraper-apollo-zoominfo-lusha-ppe/runs?token=YOUR_APIFY_API_TOKEN",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n    \"companyLocationCountryExcludes\": [\n        \"United States\"\n    ],\n    \"companyLocationCountryIncludes\": [\n        \"United Arab Emirates\"\n    ],\n    \"companySizeIncludes\": [\n        \"1-10\",\n        \"11-50\",\n        \"51-200\",\n        \"201-500\",\n        \"501-1000\",\n        \"1001-5000\",\n        \"5001-10000\",\n        \"10001+\"\n    ],\n    \"countOnly\": false,\n    \"dontSaveProgress\": false,\n    \"hasEmail\": true,\n    \"hasPhone\": true,\n    \"includeTitleVariants\": false,\n    \"personTitleIncludes\": [\n        \"project manager\"\n    ],\n    \"resetProgress\": false,\n    \"totalResults\": 25\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        480,
+        -80
+      ],
+      "id": "566e7c21-7e5e-4dd6-b009-4b4d2b839bf0",
+      "name": "Scrape Data",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b310d909-e532-4b54-b572-704998b1ee6d",
+              "name": "Name",
+              "value": "={{ $json.fullName }}",
+              "type": "string"
+            },
+            {
+              "id": "592edd19-4a75-473d-b3c0-345ddca03b2f",
+              "name": "Email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "1885b76c-49ba-4e1b-a816-875581623640",
+              "name": "Website",
+              "value": "={{ $json.companyDomain }}",
+              "type": "string"
+            },
+            {
+              "id": "ede2f3b7-293b-4021-ba56-90e22d32ed95",
+              "name": "Phone",
+              "value": "={{ $json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "01156e51-da11-448f-8d4b-26e89423a469",
+              "name": "Company Name",
+              "value": "={{ $json.companyName }}",
+              "type": "string"
+            },
+            {
+              "id": "d6378fc6-255b-4ef3-ae67-72c745e57827",
+              "name": "Title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "08f17702-aaa8-47af-8fe7-db58e440e1fd",
+              "name": "company city",
+              "value": "={{ $json.companyCity }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        176
+      ],
+      "id": "16847959-0e33-413c-b3aa-688674bf8e57",
+      "name": "Format Lead Data",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.Website.startsWith('http') ? $json.Website : 'https://' + $json.Website }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        304,
+        176
+      ],
+      "id": "56013d65-0450-4525-8d96-0525f08554c0",
+      "name": "Fetch Company Website",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.links }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=We build a lead generation automated pipeline. We have extracted some links from a lead's website. \n\nYou role is to read the links and choose links that may contain important information about the company.(e.g. news, services, leadership).\n\nDON'T try to visit these website. Only from its domain, choose the best three links.\n\n##OUTPUT\nJSON\n\n{\n\"links\":\n[\n\"link1\", \"link2\", \"link3\"\n]\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        720,
+        176
+      ],
+      "id": "ffcfe8a4-aafb-4af6-9ccf-54161fbd7c6a",
+      "name": "Select URL",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nlet companyWebsite = '';\n\ntry {\n  companyWebsite =\n    $('Format Lead Data').first().json.Website ||\n    $('Format Lead Data').first().json.website ||\n    '';\n} catch {\n  companyWebsite = '';\n}\n\nfunction normalizeBaseUrl(value) {\n  if (!value || typeof value !== 'string') {\n    return '';\n  }\n\n  let url = value.trim();\n\n  if (!/^https?:\\/\\//i.test(url )) {\n    url = `https://${url}`;\n  }\n\n  try {\n    return new URL(url ).origin;\n  } catch {\n    return '';\n  }\n}\n\nlet baseUrl = normalizeBaseUrl(companyWebsite);\n\nlet response =\n  input.response?.generations?.[0]?.[0]?.text ??\n  input.text ??\n  input.output ??\n  input.message ??\n  '';\n\nif (typeof response !== 'string') {\n  response = JSON.stringify(response);\n}\n\nlet links = [];\n\ntry {\n  const cleanedResponse = response\n    .replace(/```json/gi, '')\n    .replace(/```/g, '')\n    .trim();\n\n  const jsonMatch = cleanedResponse.match(/\\{[\\s\\S]*\\}/);\n\n  if (jsonMatch) {\n    const parsed = JSON.parse(jsonMatch[0]);\n    links = parsed.links ?? parsed.Links ?? [];\n  }\n} catch {\n  links = [];\n}\n\nif (!Array.isArray(links) || links.length === 0) {\n  links = response.match(/https?:\\/\\/[^\\s\"'<>]+/gi ) || [];\n}\n\nif (!baseUrl) {\n  const firstFullLink = links.find((link) =>\n    /^https?:\\/\\//i.test(String(link ))\n  );\n\n  if (firstFullLink) {\n    try {\n      baseUrl = new URL(firstFullLink).origin;\n    } catch {\n      baseUrl = '';\n    }\n  }\n}\n\nconst normalizedLinks = [\n  ...new Set(\n    links\n      .map((link) => String(link).trim())\n      .map((link) => link.replace(/[.,;:!?)}\\]]+$/, ''))\n      .map((link) => {\n        if (link.startsWith('/')) {\n          return baseUrl ? `${baseUrl}${link}` : link;\n        }\n\n        if (!/^https?:\\/\\//i.test(link )) {\n          return `https://${link}`;\n        }\n\n        return link;\n      } )\n      .filter((link) => {\n        try {\n          const url = new URL(link);\n\n          return (\n            url.protocol === 'http:' ||\n            url.protocol === 'https:'\n           );\n        } catch {\n          return false;\n        }\n      })\n  )\n].slice(0, 3);\n\nreturn [\n  {\n    json: {\n      links: normalizedLinks,\n      link1: normalizedLinks[0] ?? null,\n      link2: normalizedLinks[1] ?? null,\n      link3: normalizedLinks[2] ?? null,\n      count: normalizedLinks.length,\n      baseUrl\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        160
+      ],
+      "id": "eb78b76d-9593-46ee-98cb-7cd5085e3301",
+      "name": "Normalize Selected Links"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.links }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1680,
+        160
+      ],
+      "id": "d1d0abbc-8381-47cf-856d-cc6ffe07ca40",
+      "name": "Fetch Selected Company Pages",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert at writing formal, professional cold email icebreakers for managers.\n\nTask:\nAnalyze the scraped website summaries for the company {{ $('Format Lead Data').item.json['Company Name'] }} and write a personalized icebreaker.\n\nImportant Rules:\n- Only mention things that have a logical connection to process automation, operational efficiency, repetitive tasks, reporting, monitoring, or workflow optimization.\n- Do NOT force unrelated projects or products (like specific chillers, hardware, or physical equipment) unless they clearly involve operational processes that can be automated.\n- Focus on things like: reporting, data collection, performance monitoring, maintenance scheduling, service coordination, compliance tracking, or internal workflows.\n- Keep the tone formal and professional (suitable for a manager).\n- Return ONLY a valid JSON object with real line breaks (no escaped \\n).\n- No extra text before or after the JSON.\n\nRequired format:\n\n{\n  \"icebreaker\": \"Hello {{ $('Format Lead Data').item.json.Name }},\n\nI came across your company website and noticed that you have successfully delivered projects such as {project1} and {project2}. I wanted to share something that may be relevant.\n\nAfter reviewing your website in detail, it became clear that operational efficiency and process optimization are important for your team. I’ve prepared a few ideas that could help. I’m Fatma Hussein, an AI Automation Engineer specializing in eliminating repetitive operational tasks. Based on the scale and nature of the projects you’ve completed, I believe certain workflows can be automated to save your team significant time each week.\n\nI look forward to the possibility of collaborating and working together. I wait for your response.\n\nBest regards,\nFatma Hussein\nAI Automation Engineer\"\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2368,
+        160
+      ],
+      "id": "7984c594-374e-4855-867d-04415dec8d43",
+      "name": "Generate Personalized Icebreaker",
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "jsCode": "let text =\n  $input.first().json.text ||\n  $input.first().json.output ||\n  $input.first().json.icebreaker ||\n  $input.first().json.message ||\n  JSON.stringify($input.first().json);\n\nif (typeof text !== 'string') {\n  text = JSON.stringify(text);\n}\n\ntry {\n  const parsed = JSON.parse(text);\n\n  if (parsed.icebreaker) {\n    text = parsed.icebreaker;\n  }\n} catch {}\n\ntext = text\n  .replace(/^[\"']|[\"']$/g, '')\n  .replace(/\\\\n/g, '\\n')\n  .replace(/\\\\\"/g, '\"')\n  .replace(/\\\\t/g, '  ')\n  .replace(/\\n{3,}/g, '\\n\\n')\n  .replace(/icebreaker/gi, '')\n  .replace(/^\\s*[:\\-\\s]+/gm, '')\n  .trim();\n\nreturn [\n  {\n    json: {\n      cleaned_message: text\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2720,
+        160
+      ],
+      "id": "0785657f-c9b8-4102-b924-38ceb522fd4d",
+      "name": "Clean Icebreaker Message"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "project managers",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $('Format Lead Data').item.json.Name }}",
+            "title": "={{ $('Format Lead Data').item.json.Title }}",
+            "phone": "={{ $('Format Lead Data').item.json.Phone }}",
+            "email": "={{ $('Format Lead Data').item.json.Email }}",
+            "company name": "={{ $('Format Lead Data').item.json['Company Name'] }}",
+            "company website": "={{ $('Format Lead Data').item.json.Website }}",
+            "comany description": "={{ $('Get Data').item.json.companyDescription }}",
+            "message ": "={{ $json.cleaned_message }}",
+            "company  city ": "={{ $('Format Lead Data').item.json['company city'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company name",
+              "displayName": "company name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company website",
+              "displayName": "company website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "company  city ",
+              "displayName": "company  city ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "comany description",
+              "displayName": "comany description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "message ",
+              "displayName": "message ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2928,
+        160
+      ],
+      "id": "b42fdf9b-576e-486d-b3ca-7775781aa1f3",
+      "name": "Save Lead to Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "YOUR_GOOGLE_SHEETS_CREDENTIAL_NAME"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Data": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Format Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Select URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Select URL",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Fetch Selected Company Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Generate Personalized Icebreaker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Personalized Icebreaker",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Scrape Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Data": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Format Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Fetch Company Website",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Fetch Company Website": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Select URL": {
+      "main": [
+        [
+          {
+            "node": "Normalize Selected Links",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Normalize Selected Links": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Selected Company Pages": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Generate Personalized Icebreaker": {
+      "main": [
+        [
+          {
+            "node": "Clean Icebreaker Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Clean Icebreaker Message": {
+      "main": [
+        [
+          {
+            "node": "Save Lead to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Lead to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "YOUR_WORKFLOW_VERSION_ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_N8N_INSTANCE_ID"
+  },
+  "nodeGroups": [],
+  "id": "YOUR_WORKFLOW_ID",
+  "tags": []
+}
