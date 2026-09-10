@@ -24,12 +24,3 @@ An **n8n lead-research and personalization pipeline** designed to discover proje
 - Google Sheets
 - JavaScript normalization and validation
 
-## Setup
-
-1. Import `ProjectManagersUAE-IcebreakerGenerator.json` into n8n.
-2. Configure Apify and Google Gemini credentials.
-3. Configure the Google Sheets destination and any webhook settings.
-4. Review the prompt and lead filters for the target audience.
-5. Test with a small result count before enabling the schedule.
-
-Credentials and instance identifiers are represented by placeholders in the exported workflow.
