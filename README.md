@@ -15,7 +15,7 @@ An **n8n lead-research and personalization pipeline** designed to discover prosp
 
 ## Workflow architecture
 
-`Schedule → Scrape UAE leads → Filter → Format lead → Fetch website → Extract links → Select relevant URLs with Gemini → Normalize → Fetch selected pages → Generate icebreaker → Aggregate → Google Sheets`
+`Schedule → Scrape leads → Filter → Format lead → Fetch website → Extract links → Select relevant URLs with Gemini → Normalize → Fetch selected pages → Generate icebreaker → Aggregate → Google Sheets`
 
 ## Integrations
 
